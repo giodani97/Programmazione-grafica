@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Homework 3", "Homework 3\Homework 3.vcxproj", "{8101945E-6500-467D-A4B3-660236FC64BB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13FF41BA-496C-4422-AFFA-5205E7F403A9}"
+	ProjectSection(SolutionItems) = preProject
+		Homework 3\shaders_hw_3.cpp = Homework 3\shaders_hw_3.cpp
+		Homework 3\vertex_3.4_hw3.fs = Homework 3\vertex_3.4_hw3.fs
+		Homework 3\vertex_3.4_hw3.vs = Homework 3\vertex_3.4_hw3.vs
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Debug|x64.ActiveCfg = Debug|x64
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Debug|x64.Build.0 = Debug|x64
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Debug|x86.ActiveCfg = Debug|Win32
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Debug|x86.Build.0 = Debug|Win32
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Release|x64.ActiveCfg = Release|x64
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Release|x64.Build.0 = Release|x64
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Release|x86.ActiveCfg = Release|Win32
+		{8101945E-6500-467D-A4B3-660236FC64BB}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35924847-5E4D-4547-9C90-5F58D5FE593C}
+	EndGlobalSection
+EndGlobal
