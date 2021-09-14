@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "5 - Rotating Cube and depth", "5 - Rotating Cube and depth\5 - Rotating Cube and depth.vcxproj", "{9F912BFE-7989-42A8-873D-3276CF73EF0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Debug|x64.ActiveCfg = Debug|x64
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Debug|x64.Build.0 = Debug|x64
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Debug|x86.ActiveCfg = Debug|Win32
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Debug|x86.Build.0 = Debug|Win32
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Release|x64.ActiveCfg = Release|x64
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Release|x64.Build.0 = Release|x64
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Release|x86.ActiveCfg = Release|Win32
+		{9F912BFE-7989-42A8-873D-3276CF73EF0C}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6B36794C-96D3-47A5-8886-6734FB6A44DA}
+	EndGlobalSection
+EndGlobal

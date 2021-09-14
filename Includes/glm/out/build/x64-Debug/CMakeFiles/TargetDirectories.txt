@@ -1,0 +1,2 @@
+C:/Users/gioda/source/repos/giodani97/Programmazione-grafica/Includes/glm/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/gioda/source/repos/giodani97/Programmazione-grafica/Includes/glm/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
