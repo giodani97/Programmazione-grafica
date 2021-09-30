@@ -19,7 +19,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
-void renderScene(Shader shader, Model model);
+void renderScene(Shader shader);
 void renderCube();
 void renderQuad();
 
@@ -86,9 +86,6 @@ int main()
     // -------------------------
     Shader shader("3.1.3.shadow_mapping.vs", "3.1.3.shadow_mapping.fs");
     Shader simpleDepthShader("3.1.3.shadow_mapping_depth.vs", "3.1.3.shadow_mapping_depth.fs");
-    Shader debugDepthQuad("3.1.3.debug_quad.vs", "3.1.3.debug_quad_depth.fs");
-
-    Model ourModel("../../resources/objects/bike/bike.obj");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -119,7 +116,7 @@ int main()
 
     // load textures
     // -------------
-    unsigned int woodTexture = loadTexture("../../resources/textures/wood.png");
+    unsigned int woodTexture = loadTexture("../../../resources/textures/wood.png");
 
     // configure depth map FBO
     // -----------------------
@@ -150,8 +147,6 @@ int main()
     shader.use();
     shader.setInt("diffuseTexture", 0);
     shader.setInt("shadowMap", 1);
-    debugDepthQuad.use();
-    debugDepthQuad.setInt("depthMap", 0);
 
     // lighting info
     // -------------
@@ -171,26 +166,19 @@ int main()
         // -----
         processInput(window);
 
-        // change light position over time
-        lightPos.x = sin(glfwGetTime()) * 3.0f;
-        lightPos.z = cos(glfwGetTime()) * 2.0f;
-        lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
-
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 1. render depth of scene to texture (from light's perspective)
-        // --------------------------------------------------------------
+        // 1. renderizziamo la scena dal punto di vista della luce e salviamo i valori di profondità nella texture
+        // -------------------------------------------------------------------------------------------------------
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
         float near_plane = 1.0f, far_plane = 7.5f;
-        //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
-        // render scene from light's point of view
         simpleDepthShader.use();
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -199,15 +187,15 @@ int main()
             glClear(GL_DEPTH_BUFFER_BIT);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, woodTexture);
-            renderScene(simpleDepthShader, ourModel);
+            renderScene(simpleDepthShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // reset viewport
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 2. render scene as normal using the generated depth/shadow map  
-        // --------------------------------------------------------------
+        // 2. renderizziamo la scena normalmente generando le ombre con la depth/shadow map creata  
+        // ---------------------------------------------------------------------------------------
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.use();
@@ -223,16 +211,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shader, ourModel);
-
-        // render Depth map to quad for visual debugging
-        // ---------------------------------------------
-        debugDepthQuad.use();
-        debugDepthQuad.setFloat("near_plane", near_plane);
-        debugDepthQuad.setFloat("far_plane", far_plane);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        //renderQuad();
+        renderScene(shader);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -251,7 +230,7 @@ int main()
 
 // renders the 3D scene
 // --------------------
-void renderScene(Shader shader, Model ourModel)
+void renderScene(Shader shader)
 {
     // floor
     glm::mat4 model = glm::mat4(1.0f);
@@ -275,11 +254,6 @@ void renderScene(Shader shader, Model ourModel)
     model = glm::scale(model, glm::vec3(0.25));
     shader.setMat4("model", model);
     renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-    shader.setMat4("model", model);
-    ourModel.Draw(shader);
 }
 
 

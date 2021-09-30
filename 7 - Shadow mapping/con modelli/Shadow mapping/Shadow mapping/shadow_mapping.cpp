@@ -90,13 +90,13 @@ int main()
     // ------------------------------------------------------------------
     float planeVertices[] = {
         // positions            // normals         // texcoords
-         25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-        -25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-        -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+         5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,  5.0f,  0.0f,
+        -5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,   0.0f, 5.0f,
 
-         25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-        -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-         25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+         5.0f, -0.5f,  5.0f,  0.0f, 1.0f, 0.0f,  5.0f,  0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,   0.0f, 5.0f,
+         5.0f, -0.5f, -5.0f,  0.0f, 1.0f, 0.0f,  5.0f, 5.0f
     };
 
     // plane VAO
@@ -170,9 +170,8 @@ int main()
         // -----
         processInput(window);
 
-        lightPos.x = cos(glfwGetTime());
-        lightPos.z = sin(glfwGetTime());
-        //lightPos.y = abs(sin(glfwGetTime())) + 0.5;
+        lightPos.x = cos(glfwGetTime() * 0.5);
+        lightPos.z = sin(glfwGetTime() * 0.5);
 
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
