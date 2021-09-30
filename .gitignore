@@ -64,6 +64,8 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+!bike.obj
+!backpack.obj
 *.iobj
 *.pch
 *.pdb
