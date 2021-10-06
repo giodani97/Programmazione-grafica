@@ -146,6 +146,8 @@
     <ClCompile Include="shadow_mapping.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="debug.fs" />
+    <None Include="debug.vs" />
     <None Include="shadow_map.frag" />
     <None Include="shadow_map.vert" />
     <None Include="shadow_mapping.frag" />

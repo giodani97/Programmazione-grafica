@@ -17,6 +17,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int loadTexture(char const* path);
+void renderQuad();
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -81,6 +82,7 @@ int main()
     // -------------------------
     Shader ourShader("shadow_mapping.vert", "shadow_mapping.frag");
     Shader simpleDepthShader("shadow_map.vert", "shadow_map.frag");
+    Shader debugDepthQuad("debug.vs", "debug.fs");
 
     // load models
     // -----------
@@ -163,8 +165,6 @@ int main()
     // --------------------
     ourShader.use();
     ourShader.setInt("diffuseTexture", 0);
-    ourShader.setInt("shadowMap1", 1);
-    ourShader.setInt("shadowMap2", 2);
 
     // lighting info
     // -------------
@@ -192,16 +192,16 @@ int main()
         lightPos.x = cos(glfwGetTime() * 0.5);
         lightPos.z = sin(glfwGetTime() * 0.5);
 
-        glm::mat4 lightProjection, lightProjection1, lightView, lightView1;
-        glm::mat4 lightSpaceMatrix, lightSpaceMatrix1;
+        glm::mat4 lightProjection, lightView;
+        glm::mat4 lightSpaceMatrixDir1, lightSpaceMatrixDir2, lightSpaceMatrixSpot1;
         float near_plane = 1.0f, far_plane = 7.5f;
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
+        lightSpaceMatrixDir1 = lightProjection * lightView;
         // render scene from light's point of view
         simpleDepthShader.use();
-        simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrixDir1);
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO1);
@@ -225,11 +225,11 @@ int main()
 
 
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-        lightProjection1 = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView1 = glm::lookAt(lightPos1, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix1 = lightProjection1 * lightView1;
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        lightView = glm::lookAt(lightPos1, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightSpaceMatrixDir2 = lightProjection * lightView;
         // render scene from light's point of view
-        simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix1);
+        simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrixDir2);
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO2);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -265,13 +265,12 @@ int main()
         // set light uniforms
         ourShader.setVec3("viewPos", camera.Position);
         ourShader.setVec3("lightPos", lightPos);
-        ourShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap1);
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, depthMap1);
+        glBindTexture(GL_TEXTURE_2D, depthMap2);
 
         model = glm::mat4(1.0f);
         ourShader.setMat4("model", model);
@@ -282,7 +281,43 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.02f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         ourShader.setMat4("model", model);
+
+
+        ourShader.setVec3("dirLight1.position", lightPos);
+        ourShader.setMat4("dirLight1.lightSpaceMatrix", lightSpaceMatrixDir1);
+        ourShader.setInt("dirLight1.shadowMap", 1);
+        ourShader.setVec3("dirLight1.ambient", 0.25f, 0.25f, 0.25f);
+        ourShader.setVec3("dirLight1.diffuse", 0.4f, 0.4f, 0.4f);
+        ourShader.setVec3("dirLight1.specular", 0.5f, 0.5f, 0.5f);
+
+        ourShader.setVec3("dirLight2.position", lightPos1);
+        ourShader.setMat4("dirLight2.lightSpaceMatrix", lightSpaceMatrixDir2);
+        ourShader.setInt("dirLight2.shadowMap", 2);
+        ourShader.setVec3("dirLight2.ambient", 0.25f, 0.25f, 0.25f);
+        ourShader.setVec3("dirLight2.diffuse", 0.4f, 0.4f, 0.4f);
+        ourShader.setVec3("dirLight2.specular", 0.5f, 0.5f, 0.5f);
+
+        ourShader.setVec3("spotLight.position", camera.Position);
+        ourShader.setVec3("spotLight.direction", camera.Front);
+        ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setFloat("spotLight.constant", 1.0f);
+        ourShader.setFloat("spotLight.linear", 0.09);
+        ourShader.setFloat("spotLight.quadratic", 0.032);
+        ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
         ourModel.Draw(ourShader);
+
+        // render Depth map to quad for visual debugging
+        // ---------------------------------------------
+        debugDepthQuad.use();
+        debugDepthQuad.setFloat("near_plane", near_plane);
+        debugDepthQuad.setFloat("far_plane", far_plane);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depthMap2);
+        //renderQuad();
 
 
 
@@ -386,4 +421,36 @@ unsigned int loadTexture(char const* path)
     }
 
     return textureID;
+}
+
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }

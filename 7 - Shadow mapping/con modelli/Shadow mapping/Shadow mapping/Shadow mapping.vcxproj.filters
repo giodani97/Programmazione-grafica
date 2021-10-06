@@ -35,5 +35,11 @@
     <None Include="shadow_mapping.vert">
       <Filter>File di risorse</Filter>
     </None>
+    <None Include="debug.vs">
+      <Filter>File di risorse</Filter>
+    </None>
+    <None Include="debug.fs">
+      <Filter>File di risorse</Filter>
+    </None>
   </ItemGroup>
 </Project>
