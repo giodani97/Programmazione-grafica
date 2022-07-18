@@ -66,6 +66,7 @@ StyleCopReport.xml
 *.obj
 !bike.obj
 !backpack.obj
+!coin.obj
 *.iobj
 *.pch
 *.pdb
