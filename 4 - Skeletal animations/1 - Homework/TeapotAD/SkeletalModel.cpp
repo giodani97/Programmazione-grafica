@@ -32,35 +32,28 @@ void SkeletalModel::LoadMesh(const std::string& Filename)
 {
 	// Release the previously loaded mesh (if it exists)
 	Clear();
-
 	// Create the VAO
 	gl::GenVertexArrays(1, &m_VAO);
 	gl::BindVertexArray(m_VAO);
-
-	// Generate the buffers for the vertices atttributes
+		// Generate the buffers for the vertices atttributes
 	gl::GenBuffers(1, &vbo);
 	gl::GenBuffers(1, &ebo);
 	gl::GenBuffers(1, &boneBo);
-
-	pScene = Importer.ReadFile(Filename.c_str(), 
+		pScene = Importer.ReadFile(Filename.c_str(), 
 		aiProcess_JoinIdenticalVertices |
 		aiProcess_SortByPType | 
 		aiProcess_Triangulate | 
 		aiProcess_GenSmoothNormals | 
 		aiProcess_FlipUVs |
 		aiProcess_LimitBoneWeights);
-
 	if (pScene) {
-
 		m_GlobalInverseTransform = pScene->mRootNode->mTransformation;
 		m_GlobalInverseTransform.Inverse();
-
 		InitFromScene(pScene, Filename);
 	}
 	else {
 		printf("Error parsing '%s': '%s'\n", Filename.c_str(), Importer.GetErrorString());
 	}
-
 	gl::BindVertexArray(0);
 }
 
@@ -185,24 +178,17 @@ void SkeletalModel::InitMesh(unsigned int index, const aiMesh* paiMesh, std::vec
 
 void SkeletalModel::LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& Bones)
 {
-
 	// Loop through all bones in the Assimp mesh.
 	for (unsigned int i = 0; i < pMesh->mNumBones; i++) {
-
 		unsigned int BoneIndex = 0;
-
 		// Obtain the bone name.
 		std::string BoneName(pMesh->mBones[i]->mName.data);
-
 		// If bone isn't already in the map. 
 		if (m_BoneMapping.find(BoneName) == m_BoneMapping.end()) {
-
 			// Set the bone ID to be the current total number of bones. 
 			BoneIndex = m_NumBones;
-
 			// Increment total bones. 
 			m_NumBones++;
-
 			// Push new bone info into bones vector. 
 			BoneInfo bi;
 			m_BoneInfo.push_back(bi);
@@ -211,21 +197,15 @@ void SkeletalModel::LoadBones(unsigned int MeshIndex, const aiMesh* pMesh, std::
 			// Bone ID is already in map. 
 			BoneIndex = m_BoneMapping[BoneName];
 		}
-
 		m_BoneMapping[BoneName] = BoneIndex;
-
 		// Obtains the offset matrix which transforms the bone from mesh space into bone space. 
 		m_BoneInfo[BoneIndex].BoneOffset = pMesh->mBones[i]->mOffsetMatrix;
-
-
 		// Iterate over all the affected vertices by this bone i.e weights. 
 		for (unsigned int j = 0; j < pMesh->mBones[i]->mNumWeights; j++) {
-
 			// Obtain an index to the affected vertex within the array of vertices.
 			unsigned int VertexID = m_Entries[MeshIndex].BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
 			// The value of how much this bone influences the vertex. 
 			float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
-
 			// Insert bone data for particular vertex ID. A maximum of 4 bones can influence the same vertex. 
 			Bones[VertexID].AddBoneData(BoneIndex, Weight);
 		}

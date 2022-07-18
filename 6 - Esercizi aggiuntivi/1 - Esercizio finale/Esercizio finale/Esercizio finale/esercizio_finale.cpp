@@ -26,21 +26,18 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 6.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 8.0f));
+
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
-//bool firstMouse = true;
+bool firstMouse = true;
 
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
-glm::vec3 pointLightPositions[] = {
-    glm::vec3(2.3f, -3.3f, -4.0f)
-};
+// lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 
 int main()
 {
@@ -66,8 +63,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    //glfwSetCursorPosCallback(window, mouse_callback);
-    //glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -92,18 +89,8 @@ int main()
     Shader ourShader("esercizio_finale.vert", "esercizio_finale.frag");
     Shader lightCubeShader("homework_5_cube.vs", "homework_5_cube.fs");
 
-    // load models
-    // -----------
-    Model ourModel("../../../../resources/objects/bike/model.dae");
-
-    unsigned int diffuseMap = loadTexture("../../../../resources/objects/bike/DefaultMaterial_albedo.jpg");
-    unsigned int normalMap = loadTexture("../../../../resources/objects/bike/DefaultMaterial_normal.png");
-
-
-    ourShader.use();
-    ourShader.setInt("diffuseMap", 0);
-    ourShader.setInt("normalMap", 1);
-
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
     float vertices[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
@@ -149,21 +136,44 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-    unsigned int VBO, lightCubeVAO;
+    // positions of the point lights
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3(0.0f,  0.0f,  2.0f)
+    };
+
+    // load models
+    // ----------
+    Model ourModel("../../../../resources/objects/coin/coin.obj");
+
+
+    ourShader.use();
+
+    // draw in wireframe
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // first, configure the cube's VAO (and VBO)
+    unsigned int VBO;
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+    unsigned int lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // note that we update the lamp's position attribute's stride to reflect the updated buffer data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // shader configuration
+    // --------------------
+    ourShader.use();
+    //ourShader.setInt("material.diffuse", 0);
+    //ourShader.setInt("material.specular", 1);
 
     // render loop
     // -----------
@@ -184,16 +194,22 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+        // change the light's position values over time (can be done anywhere in the render loop actually, but try to do it at least before using the light source positions)
+        pointLightPositions[0].x = 0.0f + sin(glfwGetTime()) * 2.0f;
+        pointLightPositions[0].y = 0.0f + cos(glfwGetTime() / 2.0f) * 1.0f;
+
+        // don't forget to enable shader before setting uniforms
         ourShader.use();
+        ourShader.setVec3("viewPos", camera.Position);
+        ourShader.setFloat("material.shininess", 32.0f);
+
+        // directional light
         ourShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        ourShader.setVec3("dirLight.ambient", 0.005f, 0.005f, 0.005f);
-        ourShader.setVec3("dirLight.diffuse", 0.2f, 0.6f, 0.6f);
+        ourShader.setVec3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
+        ourShader.setVec3("dirLight.diffuse", 0.7f, 0.7f, 0.7f);
         ourShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
         // point light 1
-
-        pointLightPositions[0].x = sin(glfwGetTime() * 0.5);
-        pointLightPositions[0].y = cos(glfwGetTime() * 2);
-
         ourShader.setVec3("pointLights[0].position", pointLightPositions[0]);
         ourShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
         ourShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
@@ -202,8 +218,7 @@ int main()
         ourShader.setFloat("pointLights[0].linear", 0.09);
         ourShader.setFloat("pointLights[0].quadratic", 0.032);
 
-
-
+        // spotLight
         ourShader.setVec3("spotLight.position", camera.Position);
         ourShader.setVec3("spotLight.direction", camera.Front);
         ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
@@ -215,31 +230,24 @@ int main()
         ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
-        // don't forget to enable shader before setting uniforms
-        //ourShader.use();
-
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        const float radius = 2.0f;
-        float camX = sin(glfwGetTime() * 0.5) * radius;
-        float camZ = cos(glfwGetTime() * 0.5) * radius;
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); 
+        const float radius = 5.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        glm::mat4 view;
         view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0))); // rotate the quad to show normal mapping from multiple directions
-        //model = glm::scale(model, glm::vec3(3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalMap);
         ourModel.Draw(ourShader);
 
-
+        // also draw the lamp object(s)
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
@@ -259,7 +267,10 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    // optional: de-allocate all resources once they've outlived their purpose:
+    // ------------------------------------------------------------------------
+    glDeleteVertexArrays(1, &lightCubeVAO);
+    glDeleteBuffers(1, &VBO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -294,7 +305,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-/*void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
     {
@@ -317,8 +328,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
-}*/
+}
 
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
 unsigned int loadTexture(char const* path)
 {
     unsigned int textureID;
@@ -340,8 +353,8 @@ unsigned int loadTexture(char const* path)
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

@@ -240,15 +240,15 @@ const glm::vec3 WORLDZ = glm::vec3(0,0,1);
 		_zaxis = WORLDZ;
 
 		//Initialise camera position 
-		_position= glm::vec3(0.0f,5.0f,25.0f);
+		_position= glm::vec3(0.0f,10.0f,25.0f);
 
 		//Initialise the orientation
 		_orientation = glm::quat(1.0,0.06,0.0,0.0);
 
 		//Initialise camera perspective parameters
-		_fieldOfView = glm::radians(50.0f);
+		_fieldOfView = glm::radians(90.0f);
 		_nearPlane = 0.01f;
-		_farPlane = 100.0f;
+		_farPlane = 200.0f;
 		_aspectRatio = 4.0f/3.0f;
 
 		_projection = glm::perspective(_fieldOfView,_aspectRatio,_nearPlane,_farPlane);

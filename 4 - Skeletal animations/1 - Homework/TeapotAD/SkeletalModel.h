@@ -49,7 +49,6 @@ struct VertexBoneData
 				Weights[i] = Weight;
 				return;
 			}
-
 		}
 		// should never get here - more bones than we have space for
 		assert(0);

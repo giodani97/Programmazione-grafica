@@ -43,9 +43,10 @@ void AnimationScene::initScene(QuatCamera camera)
 	m_AnimatedModel = new SkeletalModel(prog);
 	
 	// Load the model from the given path. 
-	//m_AnimatedModel->LoadMesh("Assets/Minotaur@Jump.FBX");
-	//m_AnimatedModel->LoadMesh("Assets/astroBoy_walk_Maya.dae");
-	m_AnimatedModel->LoadMesh("Assets/Standing 2H Magic Attack 01.dae");
+	m_AnimatedModel->LoadMesh("Assets/mage.dae");
+	//m_AnimatedModel->LoadMesh("Assets/Capoeira.dae");
+	//m_AnimatedModel->LoadMesh("Assets/Crouch To Stand.dae");
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,15 +88,16 @@ void AnimationScene::render(QuatCamera camera)
 	// Model matrix 
 	model = mat4(1.0f);
 	//model = glm::translate(glm::vec3(0.0, -20.0, 0.0));
-	model = glm::scale(glm::vec3(0.1f));
+	model = glm::scale(glm::vec3(0.2f));
 
 	setMatrices(camera);
 
 	 //Set the Teapot material properties in the shader and render
+	//prog->setUniform("Ka", vec3(0.225f, 0.125f, 0.0f));
 	prog->setUniform("Ka", vec3(0.225f, 0.125f, 0.0f));
 	prog->setUniform("Kd", vec3(1.0f, 0.6f, 0.0f));
 	prog->setUniform("Ks", vec3(1.0f, 1.0f, 1.0f));
-	prog->setUniform("specularShininess", 1.0f);
+	prog->setUniform("specularShininess", 32.0f);
 
 	m_AnimatedModel->render();
 	
